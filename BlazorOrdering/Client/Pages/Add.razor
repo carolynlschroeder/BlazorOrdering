@@ -1,0 +1,67 @@
+﻿@page "/add"
+@using Microsoft.AspNetCore.Authorization
+@using BlazorOrdering.Shared
+@using System.Text.Json;
+@using System.Text.Json.Serialization;
+@using System.Text
+@attribute [Authorize]
+@inject NavigationManager NavManager
+@inject HttpClient Http
+
+<h2>Add Order</h2>
+
+@if (customers == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+
+    <div class="form-group row">
+        <div class="col-md-6">
+            <select @bind="@customerId" class="form-control">
+                <option>Select</option>
+                @foreach (var c in customers)
+                {
+                    <option value=@c.Id>@c.CustomerName</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button @onclick="@(() => GoToOrder())" class="btn btn-primary">Add</button>
+        </div>
+    </div>
+}
+
+@code {
+    int? customerId { get; set; }
+    List<Customer> customers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await GetCustomers();
+    }
+
+    async Task<List<Customer>> GetCustomers()
+    {
+        var response = await Http.GetAsync("api/customers");
+        customers = await response.Content.ReadFromJsonAsync<List<Customer>>();
+        return customers;
+    }
+
+
+    async Task GoToOrder()
+    {
+        if(customerId.HasValue){}
+        {
+            var order = new Order
+            {
+                CustomerId = customerId.Value,
+                OrderDateTime = DateTime.Now
+            };
+            var response = await Http.PostAsJsonAsync("api/orders", order);
+            var newOrder = await response.Content.ReadFromJsonAsync<Order>();
+            NavManager.NavigateTo("/edit/" + newOrder.Id);
+        }
+    }
+}

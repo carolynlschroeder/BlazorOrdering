@@ -1,0 +1,57 @@
+﻿@page "/orders"
+@using Microsoft.AspNetCore.Authorization
+@using BlazorOrdering.Shared
+@using System.Text.Json;
+@using System.Text.Json.Serialization;
+@using System.Text
+@attribute [Authorize]
+@inject NavigationManager NavManager
+@inject HttpClient Http
+
+<h2>Orders</h2>
+
+@if (orders == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Customer</th>
+            <th>Order Date</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var order in orders)
+        {
+            <tr>
+                <td>@order.Customer.CustomerName</td>
+                <td>@order.OrderDateTime.ToString("MM/dd/yyyy h:mm")</td>
+                <td><a href="/edit/@order.Id">@order.Id</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<Order> orders;
+
+    protected override async Task OnInitializedAsync()
+    {
+        orders = await GetOrders();
+    }
+
+    async Task<List<Order>> GetOrders()
+    {
+        var response = await Http.GetAsync("api/orders");
+        orders = await response.Content.ReadFromJsonAsync<List<Order>>();
+        return orders;
+    }
+
+}
+

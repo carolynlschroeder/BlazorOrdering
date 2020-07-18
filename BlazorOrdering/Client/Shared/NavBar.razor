@@ -1,0 +1,35 @@
+﻿<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="">Blazor Ordering</a>
+        <button class="navbar-toggler" @onclick="ToggleNavBar" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="@NavBarCssClass navbar-collapse d-sm-inline-flex flex-sm-row-reverse" @onclick="ToggleNavBar">
+            <LoginDisplay />
+            <ul class="navbar-nav flex-grow-1">
+                <li class="nav-item">
+                    <a class="nav-link" href="" Match="NavLinkMatch.All">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="add">Add</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="orders">View</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+@code {
+    bool collapseNavMenu = true;
+
+    string NavBarCssClass => collapseNavMenu ? "collapse" : null;
+
+    void ToggleNavBar()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

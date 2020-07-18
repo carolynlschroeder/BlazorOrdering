@@ -1,0 +1,79 @@
+﻿@using BlazorOrdering.Shared
+@using System.Net
+@inject HttpClient Http
+
+<Overlay @ref="overlay" OverlayStyle="Overlay.Style.FullScreen" CssClass="vehicle-note-editor-overlay" OnCloseRequested="Dismiss">
+    <button class="overlay-close" @onclick="Dismiss">✖</button>
+    <div class="text-center pb-4 pt-4"><h2>Add Order Detail</h2></div>
+    <EditForm EditContext="editContext" OnValidSubmit="SaveAsync">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <p>
+            <label>
+                Product:
+                <InputSelect @bind-Value="formData.ProductIdString">
+                    <option value="">Select Product ...</option>
+                    @foreach (var p in Products)
+                    {
+                        <option value="@p.Id">@p.ProductName</option>
+                    }
+                </InputSelect>
+            </label>
+        </p>
+        <p>
+            <label>
+                Quantity:
+                <InputNumber @bind-Value="formData.Quantity" />
+            </label>
+        </p>
+
+        <button type="submit">Submit</button>
+
+    </EditForm>
+</Overlay>
+
+@code {
+
+    [Parameter]
+    public List<Product> Products { get; set; }
+
+
+    [Parameter]
+    public EventCallback OnCommittedEdit { get; set; }
+
+    int orderId;
+    Overlay overlay;
+    EditContext editContext;
+    OrderDetail formData;
+
+    public AddDetail()
+    {
+        formData = new OrderDetail();
+        editContext = new EditContext(formData);
+    }
+
+    public void Show(int id)
+    {
+        orderId = id;
+        overlay.Show();
+
+    }
+
+    async Task SaveAsync()
+    {
+        formData.OrderId = orderId;
+        formData.ProductId = Convert.ToInt32(formData.ProductIdString);
+        await Http.PostAsJsonAsync("api/orderdetails", formData);
+        formData = new OrderDetail();
+        overlay.Hide();
+        await OnCommittedEdit.InvokeAsync(null);
+    }
+
+    async Task Dismiss()
+    {
+        await Task.Yield(); // In case this event triggers other things too (e.g., form edits), let that happen first
+        formData = new OrderDetail();
+        overlay.Hide();
+    }
+
+}

@@ -1,0 +1,113 @@
+﻿@page "/edit/{OrderId:int}"
+@using BlazorOrdering.Shared
+@using Microsoft.AspNetCore.Authorization
+@using System.Data
+@attribute [Authorize]
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<h3>Order</h3>
+@if (order == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="form-group row">
+        <div class="col-md-2"><label class="col-form-label">Client Name</label></div>
+        <div class="col-md-4"><label class="col-form-label">@order.Customer.CustomerName</label></div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-2"><label class="col-form-label">Order Date</label></div>
+        <div class="col-md-4"><label class="col-form-label">@order.OrderDateTime.ToString("MM/dd/yyyy h:mm")</label></div>
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var detail in orderDetails)
+        {
+            <tr>
+                <td>@detail.Product.ProductName</td>
+                <td>@detail.Quantity</td>
+                <td><button @onclick="@(() => DeleteDetail(detail.Id))" class="btn btn-danger">Delete</button></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <div class="text-center">
+        <button @onclick="@AddOrderDetail" class="btn btn-warning">Add Order Detail</button>
+    </div>
+
+    <AddDetail @ref="addDetail" Products="products" OnCommittedEdit="OnDetailAdded" />
+
+}
+
+@code {
+    [Parameter]
+    public int OrderId { get; set; }
+
+    Order order;
+    List<OrderDetail> orderDetails;
+    List<Product> products;
+    AddDetail addDetail;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await Http.GetAsync("api/orders/" + OrderId);
+        order = await GetOrder();
+        orderDetails = await GetOrderDetails();
+        products = await GetProducts();
+    }
+
+    async Task<Order> GetOrder()
+    {
+        var response = await Http.GetAsync("api/orders/" + OrderId);
+        order = await response.Content.ReadFromJsonAsync<Order>();
+        return order;
+    }
+
+    async Task<List<OrderDetail>> GetOrderDetails()
+    {
+        var response = await Http.GetAsync("api/orderdetails/" + OrderId);
+        orderDetails = await response.Content.ReadFromJsonAsync<List<OrderDetail>>();
+        return orderDetails;
+    }
+
+    async Task<List<Product>> GetProducts()
+    {
+        var response = await Http.GetAsync("api/products/");
+        products = await response.Content.ReadFromJsonAsync<List<Product>>();
+        return products;
+    }
+
+    async Task DeleteDetail(int id)
+    {
+        if (await JS.Confirm($"Delete Order Detail?"))
+        {
+            await Http.DeleteAsync("api/orderdetails/" + id);
+            orderDetails = await GetOrderDetails();
+        }
+    }
+
+    async Task OnDetailAdded()
+    {
+        orderDetails = await GetOrderDetails();
+        StateHasChanged();
+    }
+
+
+    void AddOrderDetail()
+    {
+      addDetail.Show(OrderId);
+
+    }
+
+}
