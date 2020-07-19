@@ -41,9 +41,8 @@
     [Parameter]
     public EventCallback OnCommittedEdit { get; set; }
 
-    int orderId;
-    Overlay overlay;
     EditContext editContext;
+    Overlay overlay;
     OrderDetail formData;
 
     public AddDetail()
@@ -52,16 +51,16 @@
         editContext = new EditContext(formData);
     }
 
-    public void Show(int id)
+
+    public void Show(OrderDetail detail)
     {
-        orderId = id;
+        formData.CopyFrom(detail);
         overlay.Show();
 
     }
 
     async Task SaveAsync()
     {
-        formData.OrderId = orderId;
         formData.ProductId = Convert.ToInt32(formData.ProductIdString);
         await Http.PostAsJsonAsync("api/orderdetails", formData);
         formData = new OrderDetail();

@@ -25,7 +25,7 @@ namespace BlazorOrdering.Shared
         [Required]
         public int Quantity { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Product is Required")]
         public string ProductIdString { get; set; }
 
         public void CopyFrom(OrderDetail other)
@@ -33,6 +33,7 @@ namespace BlazorOrdering.Shared
             OrderId = other.OrderId;
             ProductId = other.ProductId;
             Quantity = other.Quantity;
+            ProductIdString = other.ProductIdString;
         }
     }
 }

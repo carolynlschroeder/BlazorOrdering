@@ -27,6 +27,8 @@ else
         <tr>
             <th>Product</th>
             <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Price</th>
             <th></th>
         </tr>
         </thead>
@@ -36,10 +38,21 @@ else
             <tr>
                 <td>@detail.Product.ProductName</td>
                 <td>@detail.Quantity</td>
+                <td>@((detail.Product.Price).ToString("c"))</td>
+                <td>@((detail.Product.Price*detail.Quantity).ToString("c"))</td>
                 <td><button @onclick="@(() => DeleteDetail(detail.Id))" class="btn btn-danger">Delete</button></td>
             </tr>
         }
         </tbody>
+        <tfoot>
+        <tr>
+            <td>Order Total</td>
+            <td></td>
+            <td></td>
+            <td>@orderTotal</td>
+            <td></td>
+        </tr>
+        </tfoot>
     </table>
 
     <div class="text-center">
@@ -58,6 +71,7 @@ else
     List<OrderDetail> orderDetails;
     List<Product> products;
     AddDetail addDetail;
+    String orderTotal;
 
     protected override async Task OnInitializedAsync()
     {
@@ -65,6 +79,7 @@ else
         order = await GetOrder();
         orderDetails = await GetOrderDetails();
         products = await GetProducts();
+        orderTotal = GetOrderTotal();
     }
 
     async Task<Order> GetOrder()
@@ -100,14 +115,29 @@ else
     async Task OnDetailAdded()
     {
         orderDetails = await GetOrderDetails();
+        orderTotal = GetOrderTotal();
         StateHasChanged();
     }
 
 
     void AddOrderDetail()
     {
-      addDetail.Show(OrderId);
+        var orderDetail = new OrderDetail
+        {
+            OrderId = OrderId
+        };
+        addDetail.Show(orderDetail);
 
+    }
+
+    string GetOrderTotal()
+    {
+        decimal price = 0;
+        foreach(var o in orderDetails)
+        {
+            price += o.Product.Price * o.Quantity;
+        }
+        return price.ToString("c");
     }
 
 }
