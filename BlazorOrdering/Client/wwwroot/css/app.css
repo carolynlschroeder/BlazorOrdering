@@ -313,5 +313,19 @@ app {
             outline: none;
         }
 
+    .editor-overlay {
+        justify-items: center;
+    }
+
+    .editor-overlay form {
+        margin-top: 2rem;
+        padding: 0 1rem;
+        flex-grow: 1;
+        width: 100%;
+        overflow-y: auto;
+        margin-bottom: 1rem;
+        display: flex;
+        flex-direction: column;
+    }
 
 }

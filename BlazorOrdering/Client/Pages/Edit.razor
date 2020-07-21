@@ -105,7 +105,8 @@ else
 
     async Task DeleteDetail(int id)
     {
-        if (await JS.Confirm($"Delete Order Detail?"))
+        var orderDetail = orderDetails.FirstOrDefault(o => o.Id == id);
+        if (await JS.Confirm($"Delete {orderDetail.Product.ProductName}?"))
         {
             await Http.DeleteAsync("api/orderdetails/" + id);
             orderDetails = await GetOrderDetails();
@@ -116,7 +117,6 @@ else
     {
         orderDetails = await GetOrderDetails();
         orderTotal = GetOrderTotal();
-        StateHasChanged();
     }
 
 

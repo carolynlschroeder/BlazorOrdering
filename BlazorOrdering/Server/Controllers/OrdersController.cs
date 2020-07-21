@@ -57,9 +57,6 @@ namespace BlazorOrdering.Server.Controllers
 
             try
             {
-                //_context.Contact.Add(contact);
-                //_context.SaveChanges();
-                //return CreatedAtRoute("GetContact", new { id = contact.ContactId }, contact);
                 db.Order.Add(order);
                 db.SaveChanges();
                 return CreatedAtRoute("", new {id = order.Id}, order);
@@ -71,16 +68,5 @@ namespace BlazorOrdering.Server.Controllers
             }
         }
 
-        // PUT api/<Order>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<Order>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
     }
 }
